@@ -3,6 +3,8 @@ import { Gift, Map, ScrollText, Trophy } from 'lucide-react';
 import { useCombatController } from '../game/Combat/useCombatController';
 import { useInventoryStore } from '../../store/inventoryStore';
 import { useCombatStore } from '../../store/combatStore';
+import { useEvolutionStore } from '../../store/evolutionStore';
+import { useClassStore } from '../../store/classStore';
 import { formatNumber } from '../../lib/formatters';
 import { AnimatedHPBar } from '../ui/AnimatedHPBar';
 import { FloatingDamageNumber } from '../ui/FloatingDamageNumber';
@@ -12,6 +14,10 @@ export const CombatView: React.FC = () => {
   const { enemy, autoFight } = useCombatController();
   const { currentHp, playerStats } = useInventoryStore();
   const { damageInstances, removeDamageInstance, particleEvents, removeParticleEvent } = useCombatStore();
+  const { getCurrentStage } = useEvolutionStore();
+  const { selectedClassId } = useClassStore();
+  
+  const currentStage = getCurrentStage();
 
   return (
     <div className="relative h-full overflow-hidden bg-gradient-to-b from-[#9bd4ff] via-[#e7d2b4] to-[#d4c2a1]">
@@ -87,9 +93,21 @@ export const CombatView: React.FC = () => {
               <div className="relative mb-2">
                 <div className="w-24 h-24 relative">
                   <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-16 h-4 bg-black/20 rounded-full blur-sm" />
-                  <div className="absolute inset-0 rounded-full border-4 border-[#f0d08a] bg-gradient-to-br from-[#7fd18a] to-[#2f8f5a] shadow-[0_0_16px_rgba(0,0,0,0.3)] flex items-center justify-center text-4xl">
-                    🍄
+                  <div 
+                    className="absolute inset-0 rounded-full border-4 shadow-[0_0_16px_rgba(0,0,0,0.3)] flex items-center justify-center text-4xl"
+                    style={{ 
+                      borderColor: currentStage.color,
+                      background: `linear-gradient(135deg, ${currentStage.color}44, ${currentStage.color}88)`,
+                      boxShadow: `0 0 20px ${currentStage.color}60`,
+                    }}
+                  >
+                    {currentStage.icon}
                   </div>
+                  {selectedClassId && (
+                    <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-[#ffd27a] flex items-center justify-center text-xs border-2 border-[#fff2cc] shadow-lg">
+                      {selectedClassId === 'warrior' ? '🛡️' : selectedClassId === 'mage' ? '🔮' : '🏹'}
+                    </div>
+                  )}
                 </div>
               </div>
 

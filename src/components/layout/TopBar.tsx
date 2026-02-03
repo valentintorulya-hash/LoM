@@ -1,8 +1,9 @@
 import React from 'react';
-import { Bell, Calendar, Gift, Mail, Settings, Trophy } from 'lucide-react';
+import { Bell, Calendar, Gift, Mail, Settings, Trophy, Castle } from 'lucide-react';
 import { useGameStore } from '../../store/gameStore';
 import { useInventoryStore } from '../../store/inventoryStore';
 import { useCombatController } from '../game/Combat/useCombatController';
+import { useEvolutionStore } from '../../store/evolutionStore';
 import { formatNumber } from '../../lib/formatters';
 import { AnimatedHPBar } from '../ui/AnimatedHPBar';
 import { useUIStore } from '../../store/uiStore';
@@ -12,8 +13,10 @@ export const TopBar: React.FC = () => {
   const { currentHp, playerStats } = useInventoryStore();
   const { stage } = useCombatController();
   const { setOverlay } = useUIStore();
+  const { getCurrentStage } = useEvolutionStore();
 
   const hpPercent = currentHp.div(playerStats['HP'].max(1)).times(100).toNumber();
+  const currentStage = getCurrentStage();
 
   const EventButton = ({ icon: Icon, label, onClick }: { icon: any, label: string, onClick?: () => void }) => (
     <button
@@ -32,8 +35,15 @@ export const TopBar: React.FC = () => {
         <div className="relative flex items-center justify-between gap-2 px-2 py-1.5">
           <div className="flex items-center gap-2">
             <div className="flex flex-col items-center">
-              <div className="w-12 h-12 rounded-full border-3 border-[#f0d08a] bg-gradient-to-br from-[#7fd18a] to-[#2f8f5a] shadow-lg flex items-center justify-center text-2xl">
-                🍄
+              <div 
+                className="w-12 h-12 rounded-full border-3 shadow-lg flex items-center justify-center text-2xl"
+                style={{ 
+                  borderColor: currentStage.color,
+                  background: `linear-gradient(135deg, ${currentStage.color}44, ${currentStage.color}88)`,
+                  boxShadow: `0 0 15px ${currentStage.color}40`,
+                }}
+              >
+                {currentStage.icon}
               </div>
               <div className="mt-1 bg-gradient-to-r from-[#f3a245] to-[#d67a2d] text-white text-[9px] font-black px-2 py-0.5 rounded-full border-2 border-[#fff2cc] shadow-md">
                 Lv {playerLevel}
@@ -99,6 +109,7 @@ export const TopBar: React.FC = () => {
           <div className="flex items-center gap-1">
             <EventButton icon={Calendar} label="Daily" onClick={() => setOverlay('DAILY')} />
             <EventButton icon={Trophy} label="Arena" onClick={() => setOverlay('ARENA')} />
+            <EventButton icon={Castle} label="Dungeon" onClick={() => setOverlay('DUNGEON')} />
             <EventButton icon={Mail} label="Mail" onClick={() => setOverlay('MAIL')} />
           </div>
           <div className="flex items-center gap-1">

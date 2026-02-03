@@ -4,17 +4,21 @@ import { CombatView } from './CombatView';
 import { BottomNav } from './BottomNav';
 import { useGameLoop } from '../../hooks/useGameLoop';
 import { useUIStore } from '../../store/uiStore';
+import { useAFKRewardsOnLoad } from '../../store/afkStore';
 import { PetTab } from './PetTab';
 import { HeroTab } from './HeroTab';
 import { LampTab } from './LampTab';
 import { DailyPanel } from '../game/Daily/DailyPanel';
 import { MailPanel } from '../game/Mail/MailPanel';
 import { ArenaPanel } from '../game/Arena/ArenaPanel';
+import { DungeonPanel } from '../game/Dungeon/DungeonPanel';
 import { MapPanel } from '../game/Map/MapPanel';
 import { OverlayPlaceholder } from './OverlayPlaceholder';
 
 export const MainLayout: React.FC = () => {
   useGameLoop(); // Activate Economy Ticker
+  useAFKRewardsOnLoad(); // Check and claim AFK rewards on load
+  
   const { activeTab, overlay, setOverlay } = useUIStore();
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [displayTab, setDisplayTab] = useState(activeTab);
@@ -78,6 +82,7 @@ export const MainLayout: React.FC = () => {
               {overlay === 'DAILY' && <DailyPanel onClose={() => setOverlay(null)} />}
               {overlay === 'MAIL' && <MailPanel onClose={() => setOverlay(null)} />}
               {overlay === 'ARENA' && <ArenaPanel onClose={() => setOverlay(null)} />}
+              {overlay === 'DUNGEON' && <DungeonPanel onClose={() => setOverlay(null)} />}
               {overlay === 'EVENT' && <OverlayPlaceholder title="Event" onClose={() => setOverlay(null)} />}
               {overlay === 'NEWS' && <OverlayPlaceholder title="News" onClose={() => setOverlay(null)} />}
             </div>
