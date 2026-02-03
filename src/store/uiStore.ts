@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 export type TabType = 'HERO' | 'CAMP' | 'LAMP' | 'BATTLE' | 'SHOP';
-export type OverlayType = 'DAILY' | 'MAIL' | 'ARENA' | 'EVENT' | 'NEWS' | null;
+export type OverlayType = 'DAILY' | 'MAIL' | 'ARENA' | 'DUNGEON' | 'EVENT' | 'NEWS' | null;
 
 interface UIState {
   activeTab: TabType;

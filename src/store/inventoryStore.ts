@@ -19,6 +19,7 @@ interface InventoryState {
   recalculateStats: () => void;
   takeDamage: (amount: Decimal) => void;
   fullHeal: () => void;
+  applyMultipliers: (multipliers: { attack?: number; hp?: number; defense?: number; speed?: number }) => void;
 }
 
 const reviveItem = (data: any): Item => {
@@ -117,6 +118,28 @@ export const useInventoryStore = create<InventoryState>()(
         }
 
         set({ playerStats: newStats, currentHp: newCurrentHp });
+      },
+
+      // Apply multipliers to base stats (called from components with evolution/class bonuses)
+      applyMultipliers: (multipliers: { attack?: number; hp?: number; defense?: number; speed?: number }) => {
+        const { playerStats } = get();
+        
+        const newStats = { ...playerStats };
+        
+        if (multipliers.attack) {
+          newStats[StatType.ATTACK] = newStats[StatType.ATTACK].times(multipliers.attack);
+        }
+        if (multipliers.hp) {
+          newStats[StatType.HP] = newStats[StatType.HP].times(multipliers.hp);
+        }
+        if (multipliers.defense) {
+          newStats[StatType.DEFENSE] = newStats[StatType.DEFENSE].times(multipliers.defense);
+        }
+        if (multipliers.speed) {
+          newStats[StatType.SPEED] = newStats[StatType.SPEED].times(multipliers.speed);
+        }
+
+        set({ playerStats: newStats });
       },
     }),
     {

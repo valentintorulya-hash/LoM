@@ -4,6 +4,8 @@ import { useInventoryStore } from '../../../store/inventoryStore';
 import { useGameStore } from '../../../store/gameStore';
 import { useSkillStore, SKILLS_DATA } from '../../../store/skillStore';
 import { usePetStore } from '../../../store/petStore';
+import { useEvolutionStore } from '../../../store/evolutionStore';
+import { useClassStore } from '../../../store/classStore';
 import { useSkillController } from './useSkillController';
 import { StatType } from '../../../lib/gameTypes';
 import { Decimal } from '../../../lib/decimal';
@@ -17,11 +19,23 @@ export const useCombatController = () => {
   const { getBuffMultiplier, isReady } = useSkillStore();
   const { handleSkillClick } = useSkillController();
   const { getPetBonus } = usePetStore();
+  const { getEvolutionBonuses } = useEvolutionStore();
+  const { getClassMultiplier } = useClassStore();
 
   const handlePlayerAttack = useCallback(() => {
     if (!enemy) return;
     // Player DMG = Attack * Multipliers
     let damage = playerStats[StatType.ATTACK].max(1);
+    
+    // Apply Evolution Bonus
+    const evolutionBonuses = getEvolutionBonuses();
+    if (evolutionBonuses.attack) {
+      damage = damage.times(evolutionBonuses.attack);
+    }
+    
+    // Apply Class Bonus
+    const classAtkMult = getClassMultiplier('attack');
+    damage = damage.times(classAtkMult);
     
     // Apply Rage Buff
     const rageMult = getBuffMultiplier('rage');
@@ -36,17 +50,28 @@ export const useCombatController = () => {
     }
 
     damageEnemy(damage);
-  }, [enemy, playerStats, damageEnemy, getBuffMultiplier, getPetBonus]);
+  }, [enemy, playerStats, damageEnemy, getBuffMultiplier, getPetBonus, getEvolutionBonuses, getClassMultiplier]);
 
   const handleEnemyAttack = useCallback(() => {
     if (!enemy) return;
     // Enemy DMG = Enemy Atk - Player Def
-    const defense = playerStats[StatType.DEFENSE];
+    let defense = playerStats[StatType.DEFENSE];
+    
+    // Apply Evolution Defense Bonus
+    const evolutionBonuses = getEvolutionBonuses();
+    if (evolutionBonuses.defense) {
+      defense = defense.times(evolutionBonuses.defense);
+    }
+    
+    // Apply Class Defense Bonus
+    const classDefMult = getClassMultiplier('defense');
+    defense = defense.times(classDefMult);
+    
     let damage = enemy.attack.minus(defense);
     if (damage.lt(1)) damage = new Decimal(1);
 
     takeDamage(damage);
-  }, [enemy, playerStats, takeDamage]);
+  }, [enemy, playerStats, takeDamage, getEvolutionBonuses, getClassMultiplier]);
 
   const handleEnemyDeath = useCallback(() => {
     if (!enemy) return;
